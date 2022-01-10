@@ -126,7 +126,7 @@ const main = async () => {
 
   const pullRequests = await getOpenPullRequests(bitbucketConfig);
 
-  console.log(`Found ${pullRequests.length} PRs`);
+  console.log(`[${dayjs().format()}] Found ${pullRequests.length} PR(s)`);
 
   if (!pullRequests?.length) return;
 
@@ -145,9 +145,9 @@ const main = async () => {
 
 // schedule script to run every x minute
 await cron(`1 */${FETCH_EVERY} * * * *`, async () => {
-  console.log("Starting PR Reminder");
+  console.log(`[${dayjs().format()}] Starting PR Reminder`);
 
   await main();
 
-  console.log("Finished PR Reminder");
+  console.log(`[${dayjs().format()}] Finished PR Reminder`);
 });
