@@ -59,6 +59,7 @@ const getOpenPullRequests = async (
     method: "GET",
     headers: {
       "Authorization": `Basic ${credential}`,
+      "Content-Type": "application/json",
       "Accept": "application/json",
     },
   });
@@ -83,10 +84,16 @@ const getOpenPullRequests = async (
 const sendToFlock = async (config: FlockConfig, message: string) => {
   const res = await fetch(`${config.baseUrl}/${config.channel}`, {
     method: "POST",
-    body: JSON.stringify(message),
+    body: JSON.stringify({ flockml: message }),
+    headers: {
+      "Content-Type": "application/json",
+      "Accept": "application/json",
+    },
   });
 
-  return res.json();
+  const json = await res.json();
+
+  return json;
 };
 
 const pickMessage = (title: string, url: string, author: string): string => {
