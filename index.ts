@@ -64,6 +64,10 @@ const getOpenPullRequests = async (
   });
   const json: BitbucketResponse = await res.json();
 
+  if (!json || !json?.values) {
+    return [];
+  }
+
   // filter & map open pull requests
   const pullRequests = json.values.map(({ title, author, links }) => {
     return {
@@ -116,6 +120,10 @@ const main = async () => {
 
   const pullRequests = await getOpenPullRequests(bitbucketConfig);
 
+  console.log(`Found ${pullRequests.length} PRs`);
+
+  if (!pullRequests?.length) return;
+
   // build flock message & send to flock channel
   const flockConfig: FlockConfig = {
     baseUrl: Deno.env.get("FLOCK_BASE_URL")!,
@@ -130,6 +138,10 @@ const main = async () => {
 };
 
 // schedule script to run every x minute
-await cron(`* */${FETCH_EVERY} * * * *`, async () => {
+await cron(`1 */${FETCH_EVERY} * * * *`, async () => {
+  console.log("Starting PR Reminder");
+
   await main();
+
+  console.log("Finished PR Reminder");
 });
