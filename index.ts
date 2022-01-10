@@ -1,5 +1,6 @@
-import dayjs from "https://deno.land/x/dayjs@v1.10.7/mod.ts";
-import { cron } from "https://deno.land/x/deno_cron@v1.0.0/mod.ts";
+import dayjs from "https://deno.land/x/deno_dayjs@v0.0.3/mod.ts";
+import { cron } from "https://deno.land/x/deno_cron@v1.0.0/cron.ts";
+import "https://deno.land/x/dotenv/load.ts";
 
 type PullRequest = {
   title: string;
@@ -109,7 +110,7 @@ const main = async () => {
     endpoint: `/repositories/mid-kelola-indonesia/talenta-core/pullrequests`,
     username: Deno.env.get("BITBUCKET_USERNAME")!,
     password: Deno.env.get("BITBUCKET_PASSWORD")!,
-    patterns: Deno.env.get("PR_INITIAL")!.split(","),
+    patterns: Deno.env.get("PR_PATTERNS")!.split(","),
     authors: Deno.env.get("PR_AUTHORS")!.split(","),
   };
 
