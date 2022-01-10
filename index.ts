@@ -97,6 +97,12 @@ const pickMessage = (title: string, url: string, author: string): string => {
     "bantu up review yang ini donk",
     "+1 anda akan sangat membantu",
     "approval ijo, asiknya rame-rame",
+    "belum tau asiknya, klo belum pencet approve",
+    "yuk review yuk",
+    "up lapak",
+    "berikut ini butuh review, fakta no 5 mencengangkan",
+    "review ya mumpung masi anget",
+    "di review dulu, sebelum kadaluarsa",
   ];
   const idx = Math.floor(Math.random() * greeters.length);
   const greeter = greeters[idx];
