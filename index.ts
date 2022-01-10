@@ -19,16 +19,16 @@ type BitbucketConfig = {
 
 type BitbucketResponse = {
   pagelen: number;
-  values: PullRequestsResult[],
+  values: PullRequestsResult[];
   page: number;
   size: number;
-}
+};
 
 type PullRequestsResult = {
   title: string;
   author: { display_name: string };
-  links: { self: { href: string }};
-}
+  links: { self: { href: string } };
+};
 
 type FlockConfig = {
   baseUrl: string;
@@ -102,7 +102,7 @@ const pickMessage = (title: string, url: string, author: string): string => {
   const greeter = greeters[idx];
 
   const message =
-    `<flockml>${greeter} <a href="${url}">${title} by ${author}</a></flockml>`;
+    `<flockml>${greeter}<br/><a href="${url}">${title} by ${author}</a></flockml>`;
 
   return message;
 };
