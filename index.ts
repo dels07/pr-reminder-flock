@@ -46,12 +46,10 @@ const getOpenPullRequests = async (
   // setup url query
   const branchNames = config.patterns.map((pattern) =>
     `source.branch.name ~ "${pattern}"`
-  ).join("OR");
-  const authorNames = config.authors.map((pattern) =>
-    `author.display_name ~ "${pattern}"`
-  ).join("OR");
+  ).join(" OR ");
+  const authorNames = config.authors;
   const query =
-    `?q=state="OPEN" AND (${branchNames}) AND (${authorNames}) AND updated_on>=${datetime}&sort=-updated_on&pagelen=50`;
+    `?q=state="OPEN" AND (${branchNames}) AND updated_on >= ${datetime}&sort=-updated_on&pagelen=50`;
 
   const url = encodeURI(`${config.baseUrl}${config.endpoint}${query}`);
   const credential = btoa(`${config.username}:${config.password}`);
@@ -70,13 +68,15 @@ const getOpenPullRequests = async (
   }
 
   // filter & map open pull requests
-  const pullRequests = json.values.map(({ title, author, links }) => {
-    return {
-      title: title,
-      author: author.display_name,
-      url: links.self.href,
-    };
-  });
+  const pullRequests = json.values
+    .filter(({ author }) => authorNames.includes(author.display_name))
+    .map(({ title, author, links }) => {
+      return {
+        title: title,
+        author: author.display_name,
+        url: links.self.href,
+      };
+    });
 
   return pullRequests;
 };
