@@ -101,12 +101,12 @@ const sendToFlock = async (config: FlockConfig, message: string) => {
   return json;
 };
 
-const pickMessage = (
+const pickMessage = async (
   title: string,
   url: string,
   author: string,
   isTargetRelease = false,
-): string => {
+): Promise<string> => {
   if (isTargetRelease) {
     const message =
       `<flockml>minta tolong review ya<br/><a href="${url}">${title}</a> by ${author}</flockml>`;
@@ -114,20 +114,8 @@ const pickMessage = (
     return message;
   }
 
-  const greeters = [
-    "tolong bantu review PR ini ya",
-    "masi butuh yang ijo-ijo nih gan",
-    "sundul gan",
-    "bantu up review yang ini donk",
-    "+1 anda akan sangat membantu",
-    "approval ijo, asiknya rame-rame",
-    "belum tau asiknya, klo belum pencet approve",
-    "yuk review yuk",
-    "up lapak",
-    "berikut ini butuh review, fakta no 5 mencengangkan",
-    "review ya mumpung masi anget",
-    "di review dulu, sebelum kadaluarsa",
-  ];
+  const greetersFile = await Deno.readTextFile("./greeters.txt");
+  const greeters = greetersFile.split("\n");
   const idx = Math.floor(Math.random() * greeters.length);
   const greeter = greeters[idx];
 
@@ -173,7 +161,7 @@ const main = async (config = { bulk: false }) => {
   return await Promise.allSettled(
     pullRequests.map(async ({ title, author, url, target }) => {
       const isTargetRelease = target.split("/")[0] === "release";
-      const message = pickMessage(title, url, author, isTargetRelease);
+      const message = await pickMessage(title, url, author, isTargetRelease);
 
       // in case of PR that target release branch send message twice
       // first to review channel & to normal channel
