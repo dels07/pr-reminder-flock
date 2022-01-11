@@ -36,7 +36,7 @@ type FlockConfig = {
   channel: string;
 };
 
-const FETCH_EVERY = +(Deno.env.get('APP_FETCH_DELAY') ?? 5);
+const FETCH_EVERY = +(Deno.env.get("APP_FETCH_DELAY") ?? 5);
 
 const getOpenPullRequests = async (
   config: BitbucketConfig,
@@ -167,7 +167,11 @@ const main = async (config = { bulk: false }) => {
 await cron(`1 */${FETCH_EVERY} * * * *`, async () => {
   console.log(`[${dayjs().format()}] Starting PR Reminder`);
 
-  await main();
+  try {
+    await main();
+  } catch (e) {
+    console.error(`[${dayjs().format()}] Error Happen: `, e);
+  }
 
   console.log(`[${dayjs().format()}] Finished PR Reminder`);
 });
@@ -180,12 +184,16 @@ await cron("1 * * * * *", async () => {
 
   console.log(`[${dayjs().format()}] Starting PR Reminder`);
 
-  await main({ bulk: true });
+  try {
+    await main({ bulk: true });
+  } catch (e) {
+    console.error(`[${dayjs().format()}] Error Happen: `, e);
+  }
 
   console.log(`[${dayjs().format()}] Finished PR Reminder`);
 });
 
-const port = +(Deno.env.get('APP_PORT') ?? 8080);
+const port = +(Deno.env.get("APP_PORT") ?? 8080);
 const handler = (_request: Request): Response => {
   return new Response("OK", { status: 200 });
 };
