@@ -1,6 +1,7 @@
 import dayjs from "https://deno.land/x/deno_dayjs/mod.ts";
 import { cron } from "https://deno.land/x/deno_cron/cron.ts";
 import { serve } from "https://deno.land/std/http/server.ts";
+import { parse } from "https://deno.land/std/flags/mod.ts";
 import "https://deno.land/x/dotenv/load.ts";
 
 type PullRequest = {
@@ -193,7 +194,7 @@ await cron("1 * * * * *", async () => {
   console.log(`[${dayjs().format()}] Finished PR Reminder`);
 });
 
-const port = +(Deno.env.get("APP_PORT") ?? 8080);
+const port = +(parse(Deno.args).port ?? Deno.env.get("APP_PORT") ?? 8000);
 const handler = (_request: Request): Response => {
   return new Response("OK", { status: 200 });
 };
