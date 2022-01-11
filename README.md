@@ -26,10 +26,10 @@ $ cd pr-reminder-flock
 $ cp .env.example .env
 
 # run
-$ deno --allow-net --allow-env main.ts
+$ deno run --allow-net --allow-env main.ts
 
 # for development
-$ deno --watch --unstable --inspect -A main.ts
+$ deno run --unstable --inspect -A main.ts
 ```
 
 You can attach vscode debugger when in development
