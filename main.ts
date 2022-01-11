@@ -138,7 +138,7 @@ const main = async (config = { bulk: false }) => {
 
   const pullRequests = await getOpenPullRequests(bitbucketConfig);
 
-  console.log(`[${dayjs().format()}] Found ${pullRequests.length} PR(s)`);
+  console.log(`[${dayjs().add(7, 'hours').format()}] Found ${pullRequests.length} PR(s)`);
 
   if (!pullRequests?.length) return;
 
@@ -180,32 +180,32 @@ const main = async (config = { bulk: false }) => {
 
 // schedule script to run every x minute
 await cron(`1 */${FETCH_EVERY} * * * *`, async () => {
-  console.log(`[${dayjs().format()}] Starting PR Reminder`);
+  console.log(`[${dayjs().add(7, 'hours').format()}] Starting PR Reminder`);
 
   try {
     await main();
   } catch (e) {
-    console.error(`[${dayjs().format()}] Error Happen: `, e);
+    console.error(`[${dayjs().add(7, 'hours').format()}] Error Happen: `, e);
   }
 
-  console.log(`[${dayjs().format()}] Finished PR Reminder`);
+  console.log(`[${dayjs().add(7, 'hours').format()}] Finished PR Reminder`);
 });
 
 // schedule script to run every morning & afternoon
 await cron("1 * * * * *", async () => {
-  const time = dayjs().format("HH:mm");
+  const time = dayjs().add(7, 'hours').format("HH:mm");
 
   if (!["09:00", "17:00"].includes(time)) return;
 
-  console.log(`[${dayjs().format()}] Starting PR Reminder`);
+  console.log(`[${dayjs().add(7, 'hours').format()}] Starting PR Reminder`);
 
   try {
     await main({ bulk: true });
   } catch (e) {
-    console.error(`[${dayjs().format()}] Error Happen: `, e);
+    console.error(`[${dayjs().add(7, 'hours').format()}] Error Happen: `, e);
   }
 
-  console.log(`[${dayjs().format()}] Finished PR Reminder`);
+  console.log(`[${dayjs().add(7, 'hours').format()}] Finished PR Reminder`);
 });
 
 // health check
