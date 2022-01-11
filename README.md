@@ -26,7 +26,7 @@ $ cd pr-reminder-flock
 $ cp .env.example .env
 
 # run
-$ deno run --allow-net --allow-env main.ts
+$ deno run --allow-net --allow-env --allow-read main.ts
 
 # for development
 $ deno run --unstable --inspect -A main.ts
