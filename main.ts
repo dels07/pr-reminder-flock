@@ -43,9 +43,14 @@ const FETCH_EVERY = +(Deno.env.get("APP_FETCH_DELAY") ?? 5);
 
 const getOpenPullRequests = async (
   config: BitbucketConfig,
+  bulk = false
 ): Promise<PullRequest[]> => {
   // only fetch commit for x minutes ago
-  const datetime = dayjs().subtract(FETCH_EVERY, "minutes").toISOString();
+  let datetime = dayjs().subtract(FETCH_EVERY, "minutes").toISOString();
+  
+  if (bulk) {
+    datetime = dayjs().subtract(1, "day").toISOString();
+  }
 
   // setup url query
   const branchNames = config.patterns.map((pattern) =>
@@ -136,7 +141,7 @@ const main = async (config = { bulk: false }) => {
     authors: Deno.env.get("PR_AUTHORS")!.split(","),
   };
 
-  const pullRequests = await getOpenPullRequests(bitbucketConfig);
+  const pullRequests = await getOpenPullRequests(bitbucketConfig, config.bulk);
 
   console.log(`[${dayjs().add(7, 'hours').format()}] Found ${pullRequests.length} PR(s)`);
 
@@ -148,7 +153,7 @@ const main = async (config = { bulk: false }) => {
     channel: Deno.env.get("FLOCK_CHANNEL")!,
   };
 
-  if (config.bulk === true) {
+  if (config.bulk) {
     let message =
       `<flockml>masih ada <b>${pullRequests.length}</b> PR yang OPEN, dibantu review ya<br>`;
     pullRequests.forEach(({ title, author, url }) => {
@@ -197,7 +202,7 @@ await cron("1 * * * * *", async () => {
 
   if (!["09:00", "17:00"].includes(time)) return;
 
-  console.log(`[${dayjs().add(7, 'hours').format()}] Starting PR Reminder`);
+  console.log(`[${dayjs().add(7, 'hours').format()}] Starting Bulk PR Reminder`);
 
   try {
     await main({ bulk: true });
@@ -205,7 +210,7 @@ await cron("1 * * * * *", async () => {
     console.error(`[${dayjs().add(7, 'hours').format()}] Error Happen: `, e);
   }
 
-  console.log(`[${dayjs().add(7, 'hours').format()}] Finished PR Reminder`);
+  console.log(`[${dayjs().add(7, 'hours').format()}] Finished Bulk PR Reminder`);
 });
 
 // health check
