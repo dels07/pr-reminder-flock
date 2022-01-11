@@ -120,7 +120,7 @@ const pickMessage = (title: string, url: string, author: string): string => {
   return message;
 };
 
-const main = async () => {
+const main = async (config = { bulk: false }) => {
   // grab list of PR that need to be review
   const bitbucketConfig = {
     baseUrl: Deno.env.get("BITBUCKET_BASE_URL")!,
@@ -143,11 +143,23 @@ const main = async () => {
     channel: Deno.env.get("FLOCK_CHANNEL")!,
   };
 
-  await Promise.allSettled(pullRequests.map(async ({ title, author, url }) => {
-    const message = pickMessage(title, url, author);
+  if (config.bulk === true) {
+    let message =
+      `<flockml>masih ada <b>${pullRequests.length}</b> PR yang OPEN, dibantu review ya<br>`;
+    pullRequests.forEach(({ title, author, url }) => {
+      message += `<a href="${url}">${title}</a> by ${author}<br/>`;
+    });
 
-    await sendToFlock(flockConfig, message);
-  }));
+    return await sendToFlock(flockConfig, message);
+  }
+
+  return await Promise.allSettled(
+    pullRequests.map(async ({ title, author, url }) => {
+      const message = pickMessage(title, url, author);
+
+      await sendToFlock(flockConfig, message);
+    }),
+  );
 };
 
 // schedule script to run every x minute
@@ -155,6 +167,19 @@ await cron(`1 */${FETCH_EVERY} * * * *`, async () => {
   console.log(`[${dayjs().format()}] Starting PR Reminder`);
 
   await main();
+
+  console.log(`[${dayjs().format()}] Finished PR Reminder`);
+});
+
+// schedule script to run every morning & afternoon
+await cron("1 * * * * *", async () => {
+  const time = dayjs().format("HH:mm");
+
+  if (!["09:00", "17:00"].includes(time)) return;
+
+  console.log(`[${dayjs().format()}] Starting PR Reminder`);
+
+  await main({ bulk: true });
 
   console.log(`[${dayjs().format()}] Finished PR Reminder`);
 });
