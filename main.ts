@@ -27,7 +27,7 @@ type BitbucketResponse = {
 type PullRequestsResult = {
   title: string;
   author: { display_name: string };
-  links: { self: { href: string } };
+  links: { html: { href: string } };
 };
 
 type FlockConfig = {
@@ -74,7 +74,7 @@ const getOpenPullRequests = async (
       return {
         title: title,
         author: author.display_name,
-        url: links.self.href,
+        url: links.html.href,
       };
     });
 
@@ -115,7 +115,7 @@ const pickMessage = (title: string, url: string, author: string): string => {
   const greeter = greeters[idx];
 
   const message =
-    `<flockml>${greeter}<br/><a href="${url}">${title} by ${author}</a></flockml>`;
+    `<flockml>${greeter}<br/><a href="${url}">${title}</a> by ${author}</flockml>`;
 
   return message;
 };
