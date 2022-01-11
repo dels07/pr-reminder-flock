@@ -8,6 +8,7 @@ type PullRequest = {
   title: string;
   author: string;
   url: string;
+  target: string;
 };
 
 type BitbucketConfig = {
@@ -30,6 +31,7 @@ type PullRequestsResult = {
   title: string;
   author: { display_name: string };
   links: { html: { href: string } };
+  destination: { branch: { name: string } };
 };
 
 type FlockConfig = {
@@ -72,11 +74,12 @@ const getOpenPullRequests = async (
   // filter & map open pull requests
   const pullRequests = json.values
     .filter(({ author }) => authorNames.includes(author.display_name))
-    .map(({ title, author, links }) => {
+    .map(({ title, author, links, destination }) => {
       return {
         title: title,
         author: author.display_name,
         url: links.html.href,
+        target: destination.branch.name,
       };
     });
 
@@ -98,7 +101,19 @@ const sendToFlock = async (config: FlockConfig, message: string) => {
   return json;
 };
 
-const pickMessage = (title: string, url: string, author: string): string => {
+const pickMessage = (
+  title: string,
+  url: string,
+  author: string,
+  isTargetRelease = false,
+): string => {
+  if (isTargetRelease) {
+    const message =
+      `<flockml>minta tolong review ya<br/><a href="${url}">${title}</a> by ${author}</flockml>`;
+
+    return message;
+  }
+
   const greeters = [
     "tolong bantu review PR ini ya",
     "masi butuh yang ijo-ijo nih gan",
@@ -156,8 +171,19 @@ const main = async (config = { bulk: false }) => {
   }
 
   return await Promise.allSettled(
-    pullRequests.map(async ({ title, author, url }) => {
-      const message = pickMessage(title, url, author);
+    pullRequests.map(async ({ title, author, url, target }) => {
+      const isTargetRelease = target.split("/")[0] === "release";
+      const message = pickMessage(title, url, author, isTargetRelease);
+
+      // in case of PR that target release branch send message twice
+      // first to review channel & to normal channel
+      if (isTargetRelease) {
+        flockConfig.channel = Deno.env.get("FLOCK_REVIEW_CHANNEL")!;
+
+        await sendToFlock(flockConfig, message);
+      } else {
+        flockConfig.channel = Deno.env.get("FLOCK_CHANNEL")!;
+      }
 
       await sendToFlock(flockConfig, message);
     }),
@@ -194,6 +220,7 @@ await cron("1 * * * * *", async () => {
   console.log(`[${dayjs().format()}] Finished PR Reminder`);
 });
 
+// health check
 const port = +(parse(Deno.args).port ?? Deno.env.get("APP_PORT") ?? 8000);
 const handler = (_request: Request): Response => {
   return new Response("OK", { status: 200 });
