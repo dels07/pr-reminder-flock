@@ -1,0 +1,1 @@
+web: deno run --allow-net=":$APP_PORT" --allow-env app.ts
