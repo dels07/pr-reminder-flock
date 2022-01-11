@@ -185,7 +185,7 @@ await cron("1 * * * * *", async () => {
   console.log(`[${dayjs().format()}] Finished PR Reminder`);
 });
 
-const port = 8080;
+const port = +Deno.env.get('APP_PORT')! ?? 8080;
 const handler = (_request: Request): Response => {
   return new Response("OK", { status: 200 });
 };
