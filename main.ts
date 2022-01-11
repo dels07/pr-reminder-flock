@@ -1,7 +1,7 @@
 import dayjs from "https://deno.land/x/deno_dayjs/mod.ts";
 import { cron } from "https://deno.land/x/deno_cron/cron.ts";
 import { serve } from "https://deno.land/std/http/server.ts";
-import "https://deno.land/x/dotenv/load.ts";
+// import "https://deno.land/x/dotenv/load.ts";
 
 type PullRequest = {
   title: string;
