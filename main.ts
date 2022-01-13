@@ -143,6 +143,10 @@ const pickBulkMessage = (greeter: string, pullRequests: PullRequest[]) => {
   return message;
 };
 
+const jakartaTime = () => {
+  return dayjs().add(7, "hours").format();
+};
+
 const main = async (config = { bulk: false }) => {
   // grab list of PR that need to be review
   const bitbucketConfig = {
@@ -209,16 +213,16 @@ const main = async (config = { bulk: false }) => {
 };
 
 // schedule script to run every x minute
-await cron(`1 */${FETCH_EVERY} * * * *`, async () => {
-  console.log(`[${dayjs().add(7, 'hours').format()}] Starting PR Reminder`);
+await cron(`1 */${FETCH_DELAY} * * * *`, async () => {
+  console.log(`[${jakartaTime()}] Starting PR Reminder`);
 
   try {
     await main();
   } catch (e) {
-    console.error(`[${dayjs().add(7, 'hours').format()}] Error Happen: `, e);
+    console.error(`[${jakartaTime()}] Error Happen: `, e);
   }
 
-  console.log(`[${dayjs().add(7, 'hours').format()}] Finished PR Reminder`);
+  console.log(`[${jakartaTime()}] Finished PR Reminder`);
 });
 
 // schedule script to run every morning & afternoon
@@ -228,15 +232,19 @@ await cron("1 * * * * *", async () => {
 
   if (!scheduleTimes.includes(time)) return;
 
-  console.log(`[${dayjs().add(7, 'hours').format()}] Starting Bulk PR Reminder`);
+  console.log(
+    `[${jakartaTime()}] Starting Bulk PR Reminder`,
+  );
 
   try {
     await main({ bulk: true });
   } catch (e) {
-    console.error(`[${dayjs().add(7, 'hours').format()}] Error Happen: `, e);
+    console.error(`[${jakartaTime()}] Error Happen: `, e);
   }
 
-  console.log(`[${dayjs().add(7, 'hours').format()}] Finished Bulk PR Reminder`);
+  console.log(
+    `[${jakartaTime()}] Finished Bulk PR Reminder`,
+  );
 });
 
 // health check
