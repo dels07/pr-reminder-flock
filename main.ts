@@ -39,18 +39,22 @@ type FlockConfig = {
   channel: string;
 };
 
-const FETCH_EVERY = +(Deno.env.get("APP_FETCH_DELAY") ?? 5);
+type Period = {
+  time: number;
+  interval: string;
+};
+
+const FETCH_DELAY = +(Deno.env.get("APP_FETCH_DELAY") ?? 5);
+const FETCH_INTERVAL = Deno.env.get("APP_FETCH_INTERVAL") ?? "minutes";
+const BULK_DELAY = +(Deno.env.get("APP_BULK_DELAY") ?? 1);
+const BULK_INTERVAL = Deno.env.get("APP_BULK_INTERVAL") ?? "day";
 
 const getOpenPullRequests = async (
   config: BitbucketConfig,
-  bulk = false
+  period: Period,
 ): Promise<PullRequest[]> => {
-  // only fetch commit for x minutes ago
-  let datetime = dayjs().subtract(FETCH_EVERY, "minutes").toISOString();
-  
-  if (bulk) {
-    datetime = dayjs().subtract(1, "day").toISOString();
-  }
+  const { time, interval } = period;
+  const datetime = dayjs().subtract(time, interval).toISOString();
 
   // setup url query
   const branchNames = config.patterns.map((pattern) =>
@@ -130,6 +134,15 @@ const pickMessage = async (
   return message;
 };
 
+const pickBulkMessage = (greeter: string, pullRequests: PullRequest[]) => {
+  const links = pullRequests.map(({ title, author, url }) =>
+    `<a href="${url}">${title}</a> by ${author}<br/>`
+  ).join("<br/>");
+  const message = `<flockml>${greeter}<br/>${links}</flockml>`;
+
+  return message;
+};
+
 const main = async (config = { bulk: false }) => {
   // grab list of PR that need to be review
   const bitbucketConfig = {
@@ -141,9 +154,18 @@ const main = async (config = { bulk: false }) => {
     authors: Deno.env.get("PR_AUTHORS")!.split(","),
   };
 
-  const pullRequests = await getOpenPullRequests(bitbucketConfig, config.bulk);
+  const period = { time: FETCH_DELAY, interval: FETCH_INTERVAL };
 
-  console.log(`[${dayjs().add(7, 'hours').format()}] Found ${pullRequests.length} PR(s)`);
+  if (config.bulk) {
+    period.time = BULK_DELAY;
+    period.interval = BULK_INTERVAL;
+  }
+
+  const pullRequests = await getOpenPullRequests(bitbucketConfig, period);
+
+  console.log(
+    `[${jakartaTime()}] Found ${pullRequests.length} PR(s)`,
+  );
 
   if (!pullRequests?.length) return;
 
@@ -154,29 +176,32 @@ const main = async (config = { bulk: false }) => {
   };
 
   if (config.bulk) {
-    let message =
-      `<flockml>masih ada <b>${pullRequests.length}</b> PR yang OPEN, dibantu review ya<br>`;
-    pullRequests.forEach(({ title, author, url }) => {
-      message += `<a href="${url}">${title}</a> by ${author}<br/>`;
-    });
+    const message = pickBulkMessage(
+      `masih ada <b>${pullRequests.length}</b> PR yang OPEN, dibantu review ya`,
+      pullRequests,
+    );
 
-    return await sendToFlock(flockConfig, message);
+    const releases = pullRequests.filter(({ target }) =>
+      target.split("/")[0] === "release"
+    );
+    const flockConfigRelease = {
+      ...flockConfig,
+      channel: Deno.env.get("FLOCK_REVIEW_CHANNEL"),
+    };
+    const messageRelease = pickBulkMessage(
+      `tolong bantu review PR utk release ya`,
+      releases,
+    );
+
+    return await Promise.allSettled([
+      sendToFlock(flockConfig, message),
+      sendToFlock(flockConfigRelease, messageRelease),
+    ]);
   }
 
   return await Promise.allSettled(
-    pullRequests.map(async ({ title, author, url, target }) => {
-      const isTargetRelease = target.split("/")[0] === "release";
-      const message = await pickMessage(title, url, author, isTargetRelease);
-
-      // in case of PR that target release branch send message twice
-      // first to review channel & to normal channel
-      if (isTargetRelease) {
-        flockConfig.channel = Deno.env.get("FLOCK_REVIEW_CHANNEL")!;
-
-        await sendToFlock(flockConfig, message);
-      } else {
-        flockConfig.channel = Deno.env.get("FLOCK_CHANNEL")!;
-      }
+    pullRequests.map(async ({ title, author, url }) => {
+      const message = await pickMessage(title, url, author);
 
       await sendToFlock(flockConfig, message);
     }),
@@ -198,9 +223,10 @@ await cron(`1 */${FETCH_EVERY} * * * *`, async () => {
 
 // schedule script to run every morning & afternoon
 await cron("1 * * * * *", async () => {
-  const time = dayjs().add(7, 'hours').format("HH:mm");
+  const time = dayjs().add(7, "hours").format("HH:mm");
+  const scheduleTimes = Deno.env.get("APP_BULK_SCHEDULE")!.split(",");
 
-  if (!["09:00", "17:00"].includes(time)) return;
+  if (!scheduleTimes.includes(time)) return;
 
   console.log(`[${dayjs().add(7, 'hours').format()}] Starting Bulk PR Reminder`);
 
