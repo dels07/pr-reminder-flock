@@ -62,7 +62,7 @@ const getOpenPullRequests = async (
   ).join(" OR ");
   const authorNames = config.authors;
   const query =
-    `?q=state="OPEN" AND (${branchNames}) AND created_on >= ${datetime}&sort=-updated_on&pagelen=50`;
+    `?q=state="OPEN" AND (${branchNames}) AND (created_on >= ${datetime} OR updated_on >= ${datetime})&sort=-updated_on&pagelen=50`;
 
   const url = encodeURI(`${config.baseUrl}${config.endpoint}${query}`);
   const credential = btoa(`${config.username}:${config.password}`);
