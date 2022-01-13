@@ -190,7 +190,7 @@ const main = async (config = { bulk: false }) => {
     );
     const flockConfigRelease = {
       ...flockConfig,
-      channel: Deno.env.get("FLOCK_REVIEW_CHANNEL"),
+      channel: Deno.env.get("FLOCK_REVIEW_CHANNEL")!,
     };
     const messageRelease = pickBulkMessage(
       `tolong bantu review PR utk release ya`,
