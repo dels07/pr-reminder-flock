@@ -185,9 +185,14 @@ const main = async (config = { bulk: false }) => {
       pullRequests,
     );
 
+    sendToFlock(flockConfig, message);
+
     const releases = pullRequests.filter(({ target }) =>
       target.split("/")[0] === "release"
     );
+    
+    if (!releases?.length) return;
+
     const flockConfigRelease = {
       ...flockConfig,
       channel: Deno.env.get("FLOCK_REVIEW_CHANNEL")!,
@@ -197,10 +202,7 @@ const main = async (config = { bulk: false }) => {
       releases,
     );
 
-    return await Promise.allSettled([
-      sendToFlock(flockConfig, message),
-      sendToFlock(flockConfigRelease, messageRelease),
-    ]);
+    sendToFlock(flockConfigRelease, messageRelease);
   }
 
   return await Promise.allSettled(
