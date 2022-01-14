@@ -179,6 +179,11 @@ const main = async (config = { bulk: false }) => {
     channel: Deno.env.get("FLOCK_CHANNEL")!,
   };
 
+  const flockConfigRelease = {
+    ...flockConfig,
+    channel: Deno.env.get("FLOCK_REVIEW_CHANNEL")!,
+  };
+
   if (config.bulk) {
     const message = pickBulkMessage(
       `masih ada <b>${pullRequests.length}</b> PR yang OPEN, dibantu review ya`,
@@ -193,10 +198,6 @@ const main = async (config = { bulk: false }) => {
 
     if (!releases?.length) return;
 
-    const flockConfigRelease = {
-      ...flockConfig,
-      channel: Deno.env.get("FLOCK_REVIEW_CHANNEL")!,
-    };
     const messageRelease = pickBulkMessage(
       `tolong bantu review PR utk release ya`,
       releases,
@@ -206,7 +207,13 @@ const main = async (config = { bulk: false }) => {
   }
 
   return await Promise.allSettled(
-    pullRequests.map(async ({ title, author, url }) => {
+    pullRequests.map(async ({ title, author, url, target }) => {
+      if (target.split("/")[0] === "release") {
+        const message = await pickMessage(title, url, author, true);
+
+        await sendToFlock(flockConfigRelease, message);
+      }
+
       const message = await pickMessage(title, url, author);
 
       await sendToFlock(flockConfig, message);
