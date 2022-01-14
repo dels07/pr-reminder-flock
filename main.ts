@@ -136,7 +136,7 @@ const pickMessage = async (
 
 const pickBulkMessage = (greeter: string, pullRequests: PullRequest[]) => {
   const links = pullRequests.map(({ title, author, url }) =>
-    `<a href="${url}">${title}</a> by ${author}<br/>`
+    `<a href="${url}">${title}</a> by ${author}`
   ).join("<br/>");
   const message = `<flockml>${greeter}<br/>${links}</flockml>`;
 
@@ -190,7 +190,7 @@ const main = async (config = { bulk: false }) => {
     const releases = pullRequests.filter(({ target }) =>
       target.split("/")[0] === "release"
     );
-    
+
     if (!releases?.length) return;
 
     const flockConfigRelease = {
