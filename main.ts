@@ -239,9 +239,11 @@ await cron(`1 */${FETCH_DELAY} * * * *`, async () => {
 // schedule script to run every morning & afternoon
 await cron("1 * * * * *", async () => {
   const time = dayjs().add(7, "hours").format("HH:mm");
+  const day = dayjs().add(7, "hours").format("ddd");
+
   const scheduleTimes = Deno.env.get("APP_BULK_SCHEDULE")!.split(",");
 
-  if (!scheduleTimes.includes(time)) return;
+  if (!scheduleTimes.includes(time) || ["Sun", "Sat"].includes(day)) return;
 
   console.log(
     `[${jakartaTime()}] Starting Bulk PR Reminder`,
