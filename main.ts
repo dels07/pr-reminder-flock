@@ -204,6 +204,8 @@ const main = async (config = { bulk: false }) => {
     );
 
     sendToFlock(flockConfigRelease, messageRelease);
+
+    return;
   }
 
   return await Promise.allSettled(
