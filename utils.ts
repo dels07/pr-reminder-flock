@@ -1,4 +1,4 @@
-import dayjs from "https://deno.land/x/deno_dayjs/mod.ts";
+import dayjs from "deno_dayjs";
 
 export const jakartaTime = (): string => {
   return dayjs().add(7, "hours").format();

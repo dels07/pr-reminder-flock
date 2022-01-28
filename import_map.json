@@ -1,0 +1,9 @@
+{
+  "imports": {
+    "deno_cron": "https://deno.land/x/deno_cron/cron.ts",
+    "deno_dayjs": "https://deno.land/x/deno_dayjs/mod.ts",
+    "dotenv": "https://deno.land/x/dotenv/load.ts",
+    "flags/": "https://deno.land/std/flags/",
+    "http/": "https://deno.land/std/http/"
+  }
+}

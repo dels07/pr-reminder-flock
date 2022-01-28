@@ -1,8 +1,8 @@
-import dayjs from "https://deno.land/x/deno_dayjs/mod.ts";
-import { cron } from "https://deno.land/x/deno_cron/cron.ts";
-import { serve } from "https://deno.land/std/http/server.ts";
-import { parse } from "https://deno.land/std/flags/mod.ts";
-import "https://deno.land/x/dotenv/load.ts";
+import dayjs from "deno_dayjs";
+import { cron } from "deno_cron";
+import { serve } from "http/server.ts";
+import { parse } from "flags/mod.ts";
+import "dotenv";
 
 import { getOpenPullRequests } from "./bitbucket.ts";
 import { isTargetRelease, writeLog } from "./utils.ts";
