@@ -63,15 +63,15 @@ const handleBulkReminder = async () => {
 
 // schedule script to run every x minute
 await cron(`1 */${FETCH_DELAY} * * * *`, async () => {
-  console.log(`[${jakartaTime()}] Starting PR Reminder`);
+  writeLog(`Starting PR Reminder`);
 
   try {
     await handleSingleReminder();
   } catch (e) {
-    console.error(`[${jakartaTime()}] Error Happen: `, e);
+    writeLog(`Error Happen: ${e}`);
   }
 
-  console.log(`[${jakartaTime()}] Finished PR Reminder`);
+  writeLog(`Finished PR Reminder`);
 });
 
 // schedule script to run every morning & afternoon
