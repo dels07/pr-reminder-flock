@@ -37,3 +37,39 @@ $ vr dev
 ```
 
 You can attach vscode debugger when in development
+
+# How to Deploy in Heroku
+
+Assuming that you already registered in Heroku and you can link your github
+account to Heroku
+
+1. Fork this repo to your personal github account
+2. Go to heroku [dashboard](https://dashboard.heroku.com/apps)
+3. Create a new project by clicking `New -> Create new app`
+4. Select a name for project, can be anything
+5. In your new project, go to `Settings`
+6. In `Config Vars` section, you need to add environment variables from
+   `.env.example`
+7. In `Buildpack` section, you need to add custom buildpack
+   https://github.com/chibat/heroku-buildpack-deno
+8. After all setup complete you can try to deploy your project in `Deploy`
+   section
+
+If you prefer not to link your github account and use cli to deploy, remember to modify environment values in `app.json`
+
+```bash
+# install heroku cli
+$ brew install heroku
+
+# heroku login, using browser
+$ heroku login
+
+# create a new project using custom buildpack
+$ heroku apps:create --buildpack https://github.com/chibat/heroku-buildpack-deno.git pr-reminder-flock
+
+# deploy
+$ heroku git:remote --app pr-reminder-flock
+
+# redeploy, after commit
+$ git push heroku master
+```
