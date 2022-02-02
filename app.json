@@ -1,0 +1,18 @@
+{
+  "name": "PR Reminder Flock",
+  "env": {
+    "APP_PORT": 8080,
+    "APP_FETCH_DELAY": 5,
+    "APP_FETCH_INTERVAL": "minutes",
+    "APP_BULK_DELAY": 1,
+    "APP_BULK_INTERVAL": "day",
+    "BITBUCKET_BASE_URL": "https://api.bitbucket.org/2.0",
+    "BITBUCKET_USERNAME": "",
+    "BITBUCKET_PASSWORD": "",
+    "FLOCK_BASE_URL": "https://api.flock.com/hooks/sendMessage",
+    "FLOCK_CHANNEL": "",
+    "FLOCK_REVIEW_CHANNEL": "",
+    "PR_PATTERNS": "",
+    "PR_AUTHORS": ""
+  }
+}
