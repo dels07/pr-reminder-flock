@@ -193,7 +193,7 @@ const main = async (config = { bulk: false }) => {
     sendToFlock(flockConfig, message);
 
     const releases = pullRequests.filter(({ target }) =>
-      target.search('master|release')
+      target.search("master|release") !== -1
     );
 
     if (!releases?.length) return;
@@ -210,7 +210,7 @@ const main = async (config = { bulk: false }) => {
 
   return await Promise.allSettled(
     pullRequests.map(async ({ title, author, url, target }) => {
-      if (target.search('master|release')) {
+      if (target.search("master|release") !== -1) {
         const message = await pickMessage(title, url, author, true);
 
         await sendToFlock(flockConfigRelease, message);
