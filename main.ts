@@ -151,7 +151,8 @@ const main = async (config = { bulk: false }) => {
   // grab list of PR that need to be review
   const bitbucketConfig = {
     baseUrl: Deno.env.get("BITBUCKET_BASE_URL")!,
-    endpoint: `/repositories/mid-kelola-indonesia/talenta-core/pullrequests`,
+    endpoint: "/repositories/" + Deno.env.get("BITBUCKET_REPOSITORY") +
+      "/pullrequests",
     username: Deno.env.get("BITBUCKET_USERNAME")!,
     password: Deno.env.get("BITBUCKET_PASSWORD")!,
     patterns: Deno.env.get("PR_PATTERNS")!.split(","),
